@@ -1,8 +1,7 @@
 import customtkinter as ctk
 import tkinter
-from PIL import Image
-from assetlibmanager import mainmenu_colour, learn_deutsch_pic
-
+from assetlibmanager import  learn_deutsch_pic
+from app_variables import mainmenu_colour
 
 class MainMenuFrame(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
@@ -13,7 +12,7 @@ class MainMenuFrame(ctk.CTkFrame):
     def setup_main_menu_frame(self):
         self.master.change_geometry("1280x720")
 
-        self.Learn_Deutch_frame = ctk.CTkFrame(self, width=320, height=380, fg_color=mainmenu_colour.frame_dark,
+        self.Learn_Deutch_frame = ctk.CTkFrame(self, width=320, height=380, fg_color="#424242",
                                                corner_radius=25)
         self.Learn_Deutch_frame.bind("<Enter>", lambda event: self.Learn_Deutch_frame.configure(
             fg_color=mainmenu_colour.frame_light))
@@ -69,7 +68,7 @@ class MainMenuFrame(ctk.CTkFrame):
                                               font=('Century Gothic', 10))
         self.Cant_decide_label.place(relx=0.38, rely=0.85)
         self.Cant_decide_label.bind("<Button-1>",
-                                    lambda event: self.master.open_translation_game_frame("mainmenuframe"))
+                                    lambda event: self.master.open_frame("mainmenuframe", 'update_app_frame'))
         self.Cant_decide_label.bind("<Enter>",
                                     lambda event: self.Cant_decide_label.configure(cursor="hand2", text_color="blue",
                                                                                    fg_color='transparent'))  # mainmenu_colour.frame_light))

@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import tkinter
+from functions import game_properties
 
 
 class A1DeutschFrame(ctk.CTkFrame):
@@ -7,7 +8,10 @@ class A1DeutschFrame(ctk.CTkFrame):
         super().__init__(master, **kwargs)
         self.master = master
         self.setup_a1_deutsch_frame()
-
+    def set_from_language(self,language):
+        game_properties.user_language = language
+    def set_to_language(self,language):
+        game_properties.second_language = language
     # main function
     def setup_a1_deutsch_frame(self):
         self.master.change_geometry("400x600")
@@ -18,6 +22,16 @@ class A1DeutschFrame(ctk.CTkFrame):
                                             anchor='center',
                                             font=("Old English Text", 20, "bold"))
         self.a1_deutch_label.place(relx=0.3, rely=0.05)
+        self.from_language_options = ctk.CTkOptionMenu(self.a1_deutsch_frame,
+                                                   values=["english", "deutsch", "french", "spanish"], anchor="center",
+                                                   command=self.set_from_language)
+        self.from_language_options.place(relx=0.3, rely=0.35)
+
+        self.to_language_options = ctk.CTkOptionMenu(self.a1_deutsch_frame,
+                                                   values=["english", "deutsch", "french", "spanish"], anchor="center",
+                                                   command=self.set_to_language)
+        self.to_language_options.place(relx=0.3, rely=0.55)
+
         # main menu label, go back
         self.back_main_menu = ctk.CTkLabel(self.a1_deutsch_frame, text='<--',
                                            font=("Old English Text", 20, "bold"))

@@ -1,82 +1,267 @@
 # import pretty_errors
 import random
+import csv
+import string
+import threading
+from app_variables import wordlib_location
 
-deutsch_nouns_string = """Der Mensch,Der Korper,Der Arm,Der Auge,Das Bein,Das Blut,Die Brust,Die Brust 2,Der Finger,Der Fuß,Das Gesicht,Das Haar,Der Hals,Der Hand,Die Haut,Das Herz,Das Knie,Der Kopf,Der Korper,Der Mund,Die Nase,Das Ohr,Das Rücken,Die Zahn,Die Zunge,Der Atmen,Die Backe,Der Ellbogen,Die Faust,Das Gelenk,Das Gehirn,Das Kinn,Das Knochen,Das Lippe,Das Lange,Der Magen,Der Muskel,Der Nerv,Das Shalter,Der Schweiß,Das Strin,Der Zehe,Das Aufsehen,Der Geist,Der Verstand,Das Erfahrung,Das Erinnerung,Der Gedächtnis,Der Gedanke,Der Geist,Das Kenntnis,Das Vernunft,Das Verstand,Das Charakter,Das Geduld,Das Gefuhle,Die Hoffnung,Die Stimmung,Das Freude,Das Lust,Das Angst,Der Arger,Der Schrecken,Das Sorgen,Die Trauer,Das unglücklich,Die Wut,Die Gesundheit,Die Krankheit,Die Erkältung,Der Fieber,Der Husten,Die Pille,Der Schmerz,Der Verband,Das Verletzung,Das Wunde,Der Leben,Das Tod,Die Geburt,Der Geburtstag,Das Jugend,Der Leiche,Der Gerüch,Das Schlaf,Das Träne,Das Traum,Das Korperpflege,Die Sauberkeit,Das Bad, Das Bürste,Die Creme,Die Dusche,Der Fleck,Das Handtuch,Das Kamm,Der Schmutz,Der Staub"""
-english_nouns_string = """Human being,body,arm,eye,leg,blood,chest,breast,finger,foot,face,hair,neck,hand,skin,heart,knee,head,body,mouth,nose,ear,back,teeth,tongue,breath,chick,elbow,fist,joint,brain,jaw,bone,lip,lung,stomach,muscle,nerve,shoulder,sweat,forehead,toe,apperance,mind,mind,experience,memory,memory,idea,mind,knowledge,understand,mind,character,patience,feelings,hope,mood,happiness,desire,fear,anger,panic,worry,sorrow,unhappy,rage,health,illness,cold,fever,cough,pill,pain,bandage,injury,wound,life,death,birth,birthday,youth,corpse,odor,sleep,tearm,dream,hygiene,cleaniness,bath(room),brush,creme,shower,spot,towel,comb,dirt,dust"""
-
-deutsch_adjectives_string = """dick,drünn,groß,hubsch,klein,schlank,schõn,bewusst,intelligent,klug,vernunftig,anständig,bescheiden,ehrlich,fleißig,geduldig,gerecht,nett,neugierig,sparsam,streng,zuverlässig,angenehm,dankbar,empfinden,erleichtert,froh,gemütlich,glücklich,angstlich,argerlish,bõse,traurig,unangenehm,verzweifelt,wutend,gesund,kräftig,krank,wohl,alt,jung,todlich,tot,müde,wach,schmutzig"""
-english_adjectives_string = """fat,thin,big,pretty,small,slender,beutiful,aware,intelligent,smart,understandable,well behaved,modest,honest,hardworking,patient,fair,nice,curious,economical,demanding,reliable,cormfortable,grateful,react,relieved,happy,pleasant,fearful,anger,anger,angry,sorrowfull,unpleasant,desperate,furious,healthy,powerful,ill,well,old,young,deadly,dead,tired,awake,dirty"""
-
-deutsch_verbs_string = """schwach,starz,aufpassen,denken,erfahren,erinnern,erkennen,interessieren,kennen,kõnnen,merken,missverstehen,nach dencken,vergesen,verstehen,vorstellen,empfinden,freuen,fuhlen,genießen,gern,hoffen,lächen,lächeln,lieben,bedauern,befarchten,farchten,bluten,husten,leiden,verletzen,weh tun,geboren,leben,sterben,anfassen,ansehen,bemerken,beobachten,betrachten,blicken,frieren,hõren,riechen,schauen,schwitzen,sehen,spüren,traumen,weinen,kämmen,putzen,reinigen,spülen,waschnen,wishen"""
-english_verbs_string = """weak,strong,look at,think,hear,remind,acknowledge,interesting,know,can,note,misunderstand,think about,forget,undestand,imagine,react to,happy,feel,enjoy,like to,hope,laugh,smile,love,regret,fear,fear,bleed,cough,suffer,injure,hurt,born,live,die,touch,watch,notice,observe,study,view,freeze,hear,smell,look,sweat,see,feel,dream,ery,comb,clean,dry,rinse,wash,wipe"""
-
-deutsch_adverbs_string = """leider"""
-english_adverbs_string = """unfortunate"""
-
-# respective words' arrays
-deutsch_pronouns = []
+from functions import merge_sort, binary_search
 
 
-def assign_pronouns():
-    for element in deutsch_nouns:
-        deutsch_pronouns.append(element[:2])
+# Class representing a word node
+class WordNode:
+    def __init__(self, word, english_word=None, deutsch_word=None, french_word=None, spanish_word=None):
+        self.data = word
+        self.gender = "Not applicable"
+        self.english_word = english_word
+        self.deutsch_word = deutsch_word
+        self.french_word = french_word
+        self.spanish_word = spanish_word
+
+        self.previous_node = None
+        self.next_node = None
+
+    def translate(self, language):
+        if language == 'english':
+            return self.english_word
+        elif language == 'deutsch':
+            return self.deutsch_word
+        elif language == 'spanish':
+            return self.spanish_word
+        elif language == 'french':
+            return self.french_word
 
 
-deutsch_nouns = deutsch_nouns_string.split(",")
-english_nouns = english_nouns_string.split(",")
+# Class representing a doubly linked list of words
+class WordList:
+    def __init__(self):
+        self.current_node = None
+        self.head_node = None
+        self.tail_node = None
+        self.element_count = 0
 
-deutsch_adjectives = deutsch_adjectives_string.split(",")
-english_adjectives = english_adjectives_string.split(",")
+    # Insert a new word node into the linked list
+    def insert(self, new_node):
+        if not self.head_node:
+            self.head_node = new_node
+            self.tail_node = new_node
+        else:
+            current_node = self.head_node
+            while current_node:
+                if new_node.data < current_node.data:
+                    new_node.next_node = current_node
+                    new_node.previous_node = current_node.previous_node
 
-deutsch_verbs = deutsch_verbs_string.split(",")
-english_verbs = english_verbs_string.split(",")
+                    if current_node.previous_node:
+                        current_node.previous_node.next_node = new_node
+                    else:
+                        self.head_node = new_node
 
-deutsch_adverbs = deutsch_adverbs_string.split(",")
-english_adverbs = english_adverbs_string.split(",")
+                    current_node.previous_node = new_node
+                    break
+                elif not current_node.next_node:
+                    current_node.next_node = new_node
+                    new_node.previous_node = current_node
+                    self.tail_node = new_node
+                    break
+
+                current_node = current_node.next_node
+
+        self.element_count += 1
+
+    def search(self, word_in):
+        self.current_node = self.head_node
+        while self.current_node.next_node:
+            if word_in == self.current_node.data:
+                return self.current_node
+            self.current_node = self.current_node.next_node
+        return None
+
+    def delete(self, word_in):
+        self.current_node = self.head_node
+
+        while self.current_node.next_node:
+            if word_in == self.current_node.data:
+                self.connected_nodes = [self.current_node.english_word, self.current_node.deutsch_word,
+                                        self.current_node.french_word, self.current_node.spanish_word]
+                for elements in self.connected_nodes:
+                    self.connectee_nodes = [self.elements.english_word, self.elements.deutsch_word,
+                                            self.elements.french_word, self.elements.spanish_word]
+                    for foreign in self.connectee_nodes:
+                        if foreign.data == self.current_node.data:
+                            foreign = None
+                    elements = None
+                if self.current_node.previous_node:
+                    self.current_node.previous_node.next_node = None
+                if self.current_node.next_node:
+                    self.current_node.next_node.previous_node = None
+                self.current_node.previous_node = None
+                self.current_node.next_node = None
+                self.current_node = None
+                break
+            self.current_node = self.current_node.next_node
 
 
-def translate_one(word_in):
-    if word_in in deutsch_nouns:
-        return english_nouns[deutsch_nouns.index(word_in)]
-    elif word_in in english_nouns:
-        return deutsch_nouns[english_nouns.index(word_in)]
-    elif word_in in deutsch_adjectives:
-        return english_adjectives[deutsch_adjectives.index(word_in)]
-    elif word_in in english_adjectives:
-        return deutsch_adjectives[english_adjectives.index(word_in)]
-    elif word_in in deutsch_verbs:
-        return english_verbs[deutsch_verbs.index(word_in)]
-    elif word_in in english_verbs:
-        return deutsch_verbs[english_verbs.index(word_in)]
-    elif word_in in deutsch_adverbs:
-        return english_adverbs[deutsch_adverbs.index(word_in)]
-    elif word_in in english_adverbs:
-        return deutsch_adverbs[english_adverbs.index(word_in)]
+# Generate an alphabet dictionary
+def generate_alphabet_dict():
+    alphabet_dict = {chr(ord('a') + i): WordList() for i in range(26)}
+    alphabet_dict.update({'é': WordList(), 'œ': WordList()})
+
+    return alphabet_dict
+
+
+# Build a hash table for different word types
+def build_hash():
+    language_hash = {}
+    article_hash = generate_alphabet_dict()
+    noun_hash = generate_alphabet_dict()
+    pronoun_hash = generate_alphabet_dict()
+    adjective_hash = generate_alphabet_dict()
+    verb_hash = generate_alphabet_dict()
+    adverb_hash = generate_alphabet_dict()
+    conjunction_hash = generate_alphabet_dict()
+    preposition_hash = generate_alphabet_dict()
+    all_words = []
+    word_type = ["articles", "nouns", "pronouns", "adjectives", "verbs", "adverbs", "conjunctions", "prepositions",
+                 'all']
+    word_hash = [article_hash, noun_hash, pronoun_hash, adjective_hash, verb_hash, adverb_hash, conjunction_hash,
+                 preposition_hash, all_words]
+    for index in range(len(word_type)):
+        language_hash.update({word_type[index]: word_hash[index]})
+
+    return language_hash
+
+
+# Initialize hashmaps for different languages
+languages_array = ["english", "deutsch", "spanish", "french"]
+english_hashmap = build_hash()
+deutsch_hashmap = build_hash()
+spanish_hashmap = build_hash()
+french_hashmap = build_hash()
+languages_hash_array = [english_hashmap, deutsch_hashmap, spanish_hashmap, french_hashmap]
+language_hashmap = {languages_array[i]: languages_hash_array[i] for i in range(len(languages_array))}
+
+
+# Check if a word exists in a CSV file
+def check_name_exists(name, csv_filename):
+    with open(csv_filename, 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            if name in row:
+                return True
+    return False
+
+
+all_words_nodes_list = []
+
+
+# Read CSV files and update the progress bar
+def read_csv_files(app, word_properties, progress_bar, progress_var):
+    def worker(file_path, word_types, lock_thread):
+        nonlocal completed_threads
+        nonlocal total_lines_read
+        total_lines = sum(1 for _ in open(file_path))
+        lines_read = 0
+
+        with open(file_path, mode='r', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                try:
+                    english_node = WordNode((row["English"]).lower())
+                    deutsch_node = WordNode((row["German"]).lower())
+                    spanish_node = WordNode((row["Spanish"]).lower())
+                    french_node = WordNode((row["French"]).lower())
+
+                    nodes_create = [english_node, deutsch_node, spanish_node, french_node]
+
+                    for node in nodes_create:
+                        node.english_word = english_node
+                        node.deutsch_word = deutsch_node
+                        node.french_word = french_node
+                        node.spanish_word = spanish_node
+                        all_words_nodes_list.append(node)
+
+                    if check_name_exists("Pronoun", file_path):
+                        deutsch_node.gender = row["Pronoun"]
+
+                    for _ in range(4):
+                        language_hashmap[languages_array[_]]['all'].append(nodes_create[_])
+                        language_hashmap[languages_array[_]][word_types][nodes_create[_].data[0].lower()].insert(
+                            nodes_create[_])
+                    lines_read += 1
+
+                    with lock_thread:
+                        total_lines_read += 1
+                        progress = total_lines_read / total_lines_sum
+                        app.after(0, update_progress, progress_bar, progress_var, progress)
+                except KeyError as e:
+                    print(f"KeyError: {e} in file {file_path}")
+            for languages in languages_array:
+                merge_sort(language_hashmap[languages]['all'], 0, len(language_hashmap[languages]['all']) - 1)
+            merge_sort(all_words_nodes_list, 0, len(all_words_nodes_list) - 1)
+            print(f"Done for {file_path}")
+
+        with lock_thread:
+            completed_threads += 1
+            progress = completed_threads / total_threads
+            app.after(0, update_progress, progress_bar, progress_var, progress)
+
+    threads = []
+    total_threads = len(word_properties)
+    completed_threads = 0
+    total_lines_read = 0
+
+    total_lines_sum = sum(sum(1 for _ in open(file_path)) for file_path, _ in word_properties)
+
+    lock = threading.Lock()
+
+    for file_path, word_type in word_properties:
+        thread = threading.Thread(target=worker, args=(file_path, word_type, lock))
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+    app.library_built = True
+
+
+# Start reading CSV files in a separate thread
+def start_reading(app, progress_bar, progress_var):
+    threading.Thread(target=read_csv_files, args=(app, wordlib_location, progress_bar, progress_var)).start()
+
+
+# Update the progress bar
+def update_progress(progress_bar, progress_var, progress):
+    progress_var.set(f"{progress * 100:.2f}%")
+    progress_bar["value"] = progress * 100
+
+
+def translate_one(word_in, to_language):
+    result_node = binary_search(word_in, all_words_nodes_list)
+    return result_node.translate(to_language).data
+
+
+def translate_two(word_in, from_language, to_language, wordtype):
+    temp_result_node = language_hashmap[from_language][wordtype][word_in[0].lower()].head_node
+    if temp_result_node:
+        while temp_result_node.next_node:
+            if temp_result_node.data == word_in:
+                return temp_result_node.translate(to_language).data
+            temp_result_node = temp_result_node.next_node
+    return None
+
+
+def random_word_gen(language, word_type):
+    temp_word_node = language_hashmap[language][word_type][random.choice(string.ascii_lowercase)].head_node
+    if temp_word_node:
+        while temp_word_node.next_node:
+            if bool(random.randint(0, 1)) and temp_word_node:
+                return temp_word_node.data
+                temp_word_node = temp_word_node.next_node
     else:
-        return "Not found"
+        while not temp_word_node:
+            random_char = random.choice(string.ascii_lowercase)
+            temp_word_node = language_hashmap[language][word_type][random_char].head_node
 
-
-def Random_word_gen(word_type):
-    if word_type == 'nouns':
-        upper_limit = len(english_nouns)
-        eng_array = english_nouns
-        ger_array = deutsch_nouns
-    elif word_type == 'verbs':
-        upper_limit = len(english_verbs)
-        eng_array = english_verbs
-        ger_array = deutsch_verbs
-    elif word_type == 'adjectives':
-        upper_limit = len(english_adjectives)
-        eng_array = english_adjectives
-        ger_array = deutsch_adjectives
-    elif word_type == 'adverbs':
-        eng_array = english_adverbs
-        ger_array = deutsch_adverbs
-        upper_limit = len(english_adverbs)
-    else:
-        print('invalid entry')
-    return ger_array[random.randint(0, upper_limit - 1)]
-
-
-assign_pronouns()
-print(deutsch_pronouns)
+    return temp_word_node.data

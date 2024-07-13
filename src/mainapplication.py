@@ -6,8 +6,8 @@ from frames import get_destination_frame
 from welcomeframes import WelcomeFrame
 from mainmenuframes import MainMenuFrame
 # import app properties
-from assetlibmanager import Myapp, mainmenu_colour
-
+from app_variables import Myapp, mainmenu_colour
+from functions import game_properties
 # initial properties
 ctk.set_default_color_theme(Myapp.default_theme)  # default color of different widgets
 ctk.set_appearance_mode(Myapp.apperance_mode)  # default color scheme/ theme
@@ -15,8 +15,9 @@ ctk.set_appearance_mode(Myapp.apperance_mode)  # default color scheme/ theme
 
 # class for the main application
 class MainApp(ctk.CTk):
-    def __init__(self):
+    def __init__(self,lib_status):
         super().__init__()
+        game_properties.is_library_built = lib_status
         self.title('BX7 Gamer')
         self.geometry('600x462')
         self.frames = {}
@@ -32,7 +33,7 @@ class MainApp(ctk.CTk):
     def change_title(self, new_title):
         self.title(new_title)
 
-    # function to change apperance of the app{Theme in this case}
+    # function to change appearance of the app{Theme in this case}
     def change_apperance_mode(self):
         if Myapp.apperance_mode == 'Dark':
             ctk.set_appearance_mode('Light')
