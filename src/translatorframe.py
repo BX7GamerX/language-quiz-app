@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from word_library import translate_one as translate
 import tkinter
-
+from functions import game_properties
 
 class TranslatorFrame(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
@@ -42,7 +42,7 @@ class TranslatorFrame(ctk.CTkFrame):
 
     def Translate(self):
         word_in = self.translate_entry.get().lower()
-        translation = translate(word_in)
+        translation = translate(word_in,game_properties.second_language)
         if word_in != "":
             if translation != "not found":
                 self.translation_label.configure(text=f"Translation : {translation}")
