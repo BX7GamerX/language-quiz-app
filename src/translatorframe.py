@@ -1,16 +1,23 @@
 import customtkinter as ctk
 from word_library import translate_one as translate
 import tkinter
-from functions import game_properties
+from functions import game_properties,write_to_csv,CSVPaths
+from word_library import read_csv_files,random_word_gen
+
 
 class TranslatorFrame(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
         self.master = master
+        if not game_properties.is_library_built:
+            game_properties.is_library_built = True
+            write_to_csv(CSVPaths.APP_PROPERTIES.value,game_properties.data)
+            game_properties.default_answer = random_word_gen(game_properties.user_language, game_properties.word_type)
+
         self.setup_translator_frame()
 
     def setup_translator_frame(self):
-        self.master.change_geometry("400x250")
+        self.master.change_geometry("400x250") # type: ignore
         self.translator_frame = ctk.CTkFrame(self, width=400, height=250)  # Frame n it's attributes
         self.translator_frame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
         self.label = ctk.CTkLabel(self.translator_frame, text="English or German word:")
@@ -30,7 +37,7 @@ class TranslatorFrame(ctk.CTkFrame):
         self.translate_button.place(relx=0.3, rely=0.5)
         self.translation_label.place(relx=0.25, rely=0.7)
         self.back_main_menu.bind("<Button-1>",
-                                 lambda event: self.master.open_frame("translator_frame", 'mainmenuframe'))
+                                 lambda event: self.master.open_frame("translator_frame", 'mainmenuframe')) # type: ignore
         self.back_main_menu.bind("<Enter>", lambda event: self.back_main_menu.configure(cursor="hand2",
                                                                                         text_color="green",
                                                                                         text='Main Menu', font=(

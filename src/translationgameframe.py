@@ -151,7 +151,7 @@ class TranslationGameFrame(ctk.CTkFrame):
     def set_word_type(self, word_type):
 
         game_properties.word_type = word_type
-        self.randy_word = random_word_gen(game_properties.word_type)
+        self.randy_word = random_word_gen(game_properties.user_language, game_properties.word_type)
         setup_choices(self.randy_word, game_properties.user_language, game_properties.second_language)
         self.word_entry_name.configure(text=self.randy_word)
         self.answer_1_label.configure(text=game_properties.default_answer_array[0])

@@ -1,5 +1,6 @@
 import customtkinter as ctk
-import tkinter
+import tkinter as tk
+from tkinter import messagebox
 import random
 from functions import game_properties
 from word_library import random_word_gen, translate_two
@@ -53,7 +54,7 @@ class InteractiveModeFrame(ctk.CTkFrame):
         
         # Main frame
         self.interactive_frame = ctk.CTkFrame(self, width=800, height=700)
-        self.interactive_frame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+        self.interactive_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
         
         # Title
         self.title_label = ctk.CTkLabel(self.interactive_frame, text="Interactive Conversation Practice",
@@ -65,7 +66,7 @@ class InteractiveModeFrame(ctk.CTkFrame):
                                        font=("Old English Text", 20, "bold"))
         self.back_button.place(relx=0.05, rely=0.05)
         self.back_button.bind("<Button-1>", lambda event:
-        self.master.open_frame("interactive_mode_frame", 'a2_deutsch_frame'))
+        self.master.open_frame("interactive_mode", 'a2_deutsch_frame'))
         self.back_button.bind("<Enter>", lambda event:
         self.back_button.configure(cursor="hand2", text_color="green"))
         self.back_button.bind("<Leave>", lambda event:
@@ -190,7 +191,7 @@ class AdvancedTranslationFrame(ctk.CTkFrame):
         
         # Main frame
         self.advanced_frame = ctk.CTkFrame(self, width=600, height=700)
-        self.advanced_frame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+        self.advanced_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
         
         # Title
         self.title_label = ctk.CTkLabel(self.advanced_frame, text="Advanced Translation Challenge",
@@ -202,7 +203,7 @@ class AdvancedTranslationFrame(ctk.CTkFrame):
                                        font=("Old English Text", 20, "bold"))
         self.back_button.place(relx=0.05, rely=0.05)
         self.back_button.bind("<Button-1>", lambda event:
-        self.master.open_frame("advanced_translation_frame", 'b1_deutsch_frame'))
+        self.master.open_frame("advanced_translation", 'b1_deutsch_frame'))
         self.back_button.bind("<Enter>", lambda event:
         self.back_button.configure(cursor="hand2", text_color="green"))
         self.back_button.bind("<Leave>", lambda event:
@@ -336,7 +337,7 @@ class PracticeScheduleFrame(ctk.CTkFrame):
         
         # Main frame
         self.schedule_frame = ctk.CTkFrame(self, width=700, height=600)
-        self.schedule_frame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+        self.schedule_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
         
         # Title
         self.title_label = ctk.CTkLabel(self.schedule_frame, text="Vocabulary Practice Schedule",
@@ -348,7 +349,7 @@ class PracticeScheduleFrame(ctk.CTkFrame):
                                        font=("Old English Text", 20, "bold"))
         self.back_button.place(relx=0.05, rely=0.05)
         self.back_button.bind("<Button-1>", lambda event:
-        self.master.open_frame("practice_schedule_frame", 'mainmenuframe'))
+        self.master.open_frame("practice_schedule", 'mainmenuframe'))
         self.back_button.bind("<Enter>", lambda event:
         self.back_button.configure(cursor="hand2", text_color="green"))
         self.back_button.bind("<Leave>", lambda event:
@@ -480,4 +481,4 @@ class PracticeScheduleFrame(ctk.CTkFrame):
     def start_practice(self):
         """Start today's practice session"""
         # This would typically launch the appropriate practice mode
-        self.master.open_frame("practice_schedule_frame", 'translation_game_frame')
+        self.master.open_frame("practice_schedule", 'translation_game_frame')

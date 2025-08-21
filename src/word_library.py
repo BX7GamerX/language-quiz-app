@@ -154,7 +154,7 @@ def check_name_exists(name, csv_filename):
 
 all_words_nodes_list = []
 
-
+#please don't touch this
 # Read CSV files and update the progress bar
 def read_csv_files(app, word_properties, progress_bar, progress_var):
     def worker(file_path, word_types, lock_thread):
@@ -238,33 +238,128 @@ def update_progress(progress_bar, progress_var, progress):
 
 
 def translate_one(word_in, to_language):
-    result_node = binary_search(word_in, all_words_nodes_list)
-    return result_node.translate(to_language).data
+    try:
+        if not all_words_nodes_list:
+            return get_fallback_translation(word_in, to_language)
+        result_node = binary_search(word_in, all_words_nodes_list)
+        if result_node and hasattr(result_node, 'translate'):
+            return result_node.translate(to_language).data
+        else:
+            return get_fallback_translation(word_in, to_language)
+    except Exception as e:
+        print(f"Error in translate_one: {e}")
+        return get_fallback_translation(word_in, to_language)
 
 
 def translate_two(word_in, from_language, to_language, wordtype):
-    temp_result_node = language_hashmap[from_language][wordtype][word_in[0].lower()].head_node
-    if temp_result_node:
-        while temp_result_node.next_node:
-            if temp_result_node.data == word_in:
-                return temp_result_node.translate(to_language).data
-            temp_result_node = temp_result_node.next_node
-    return None
+    try:
+        if not language_hashmap or from_language not in language_hashmap:
+            return get_fallback_translation(word_in, to_language)
+            
+        if wordtype not in language_hashmap[from_language]:
+            return get_fallback_translation(word_in, to_language)
+            
+        if not word_in or word_in[0].lower() not in language_hashmap[from_language][wordtype]:
+            return get_fallback_translation(word_in, to_language)
+            
+        temp_result_node = language_hashmap[from_language][wordtype][word_in[0].lower()].head_node
+        if temp_result_node:
+            while temp_result_node:
+                if temp_result_node.data == word_in:
+                    return temp_result_node.translate(to_language).data
+                temp_result_node = temp_result_node.next_node
+                
+        return get_fallback_translation(word_in, to_language)
+    except Exception as e:
+        print(f"Error in translate_two: {e}")
+        return get_fallback_translation(word_in, to_language)
+
+
+def get_fallback_translation(word, to_language):
+    """Provide basic fallback translations"""
+    fallback_translations = {
+        'Mensch': {'english': 'human', 'francais': 'humain', 'espanol': 'humano'},
+        'Körper': {'english': 'body', 'francais': 'corps', 'espanol': 'cuerpo'},
+        'Arm': {'english': 'arm', 'francais': 'bras', 'espanol': 'brazo'},
+        'denken': {'english': 'think', 'francais': 'penser', 'espanol': 'pensar'},
+        'sprechen': {'english': 'speak', 'francais': 'parler', 'espanol': 'hablar'},
+        'groß': {'english': 'big', 'francais': 'grand', 'espanol': 'grande'},
+        'schnell': {'english': 'quickly', 'francais': 'rapidement', 'espanol': 'rápidamente'}
+    }
+    
+    if word in fallback_translations and to_language in fallback_translations[word]:
+        return fallback_translations[word][to_language]
+    
+    # If no translation available, return placeholder
+    return f"[{word}]"
 
 
 def random_word_gen(language, word_type):
-    temp_word_node = language_hashmap[language][word_type][random.choice(string.ascii_lowercase)].head_node
-    if temp_word_node:
-        while temp_word_node.next_node:
-            if bool(random.randint(0, 1)) and temp_word_node:
-                return temp_word_node.data
-                temp_word_node = temp_word_node.next_node
-    else:
-        while not temp_word_node:
+    try:
+        # Check if language_hashmap is properly initialized
+        if not language_hashmap or language not in language_hashmap:
+            print(f"Language hashmap not initialized for {language}")
+            return get_fallback_word(word_type)
+        
+        if word_type not in language_hashmap[language]:
+            print(f"Word type {word_type} not found for {language}")
+            return get_fallback_word(word_type)
+        
+        # Try multiple random letters to find a word
+        attempts = 0
+        max_attempts = 26  # Try all letters if needed
+        
+        while attempts < max_attempts:
             random_char = random.choice(string.ascii_lowercase)
-            temp_word_node = language_hashmap[language][word_type][random_char].head_node
+            if random_char in language_hashmap[language][word_type]:
+                temp_word_node = language_hashmap[language][word_type][random_char].head_node
+                
+                if temp_word_node:
+                    # Found a word, return it
+                    return temp_word_node.data
+            
+            attempts += 1
+        
+        # If we get here, no words were found
+        print(f"No words found for {language} {word_type}")
+        return get_fallback_word(word_type)
+        
+    except Exception as e:
+        print(f"Error in random_word_gen: {e}")
+        return get_fallback_word(word_type)
 
-    return temp_word_node.data
+
+# Legacy function for backward compatibility
+def Random_word_gen(word_type):
+    """Legacy function - redirects to new API with deutsch as default"""
+    return random_word_gen('deutsch', word_type)
+
+
+def get_fallback_word(word_type):
+    """Get a fallback word when main library fails"""
+    fallback_words = {
+        'nouns': ['Mensch', 'Körper', 'Arm', 'Auge', 'Bein'],
+        'verbs': ['denken', 'sprechen', 'gehen', 'kommen', 'sehen'], 
+        'adjectives': ['groß', 'klein', 'gut', 'schlecht', 'neu'],
+        'adverbs': ['schnell', 'langsam', 'gut', 'schlecht']
+    }
+    return random.choice(fallback_words.get(word_type, ['Wort']))
+
+
+def is_library_ready():
+    """Check if word library is ready for use"""
+    try:
+        # Check if we have any usable data
+        if language_hashmap and 'deutsch' in language_hashmap:
+            # Check if we have at least some words
+            for word_type in ['nouns', 'verbs', 'adjectives', 'adverbs']:
+                if word_type in language_hashmap['deutsch']:
+                    for letter in language_hashmap['deutsch'][word_type]:
+                        if language_hashmap['deutsch'][word_type][letter].head_node:
+                            return True
+        return False
+    except Exception:
+        return False
 
 
 def build_library():

@@ -1,6 +1,7 @@
 import customtkinter as ctk
 import random
 import csv
+import os
 from datetime import date
 
 
@@ -138,28 +139,36 @@ def read_properties():
 game_properties = read_properties()
 
 def write_to_csv(file_path, new_row):
-    with open(file_path, 'a', newline='\n') as file:
+    # Use write mode instead of append to replace the file content
+    with open(file_path, 'w', newline='\n') as file:
         writer = csv.writer(file)
         writer.writerow(new_row)
-    row1 = str(0)
-    row2 = '0.4'
-    with open(r'../wordlib/libstatus', 'r') as file:
-        reader = csv.reader(file)
-        data = list(reader)
+    
+    # Update libstatus file as well
+    row1 = ["0"]  # CSV data should be lists
+    row2 = ["0.4"] 
+    try:
+        libstatus_path = os.path.join(os.path.dirname(__file__), '../wordlib/libstatus')
+        with open(libstatus_path, 'r') as file:
+            reader = csv.reader(file)
+            data = list(reader)
 
         # Override the first two rows with the given arguments
-    if len(data) >= 2:
-        data[0] = row1
-        data[1] = row2
-    elif len(data) == 1:
-        data[0] = row1
-        data.append(row2)
-    else:
-        data.append(row1)
-        data.append(row2)
-    with open(r'../wordlib/libstatus', 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerows(data)
+        if len(data) >= 2:
+            data[0] = row1
+            data[1] = row2
+        elif len(data) == 1:
+            data[0] = row1
+            data.append(row2)
+        else:
+            data.append(row1)
+            data.append(row2)
+        
+        with open(libstatus_path, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerows(data)
+    except Exception as e:
+        print(f"Warning: Could not update libstatus: {e}")
 
 
 

@@ -2,6 +2,8 @@ import os
 import sys
 import threading
 import tempfile
+import random
+import tkinter
 from typing import Optional
 import customtkinter as ctk
 import tkinter.messagebox as messagebox
@@ -204,7 +206,7 @@ class PronunciationPracticeFrame(ctk.CTkFrame):
                                        font=("Old English Text", 20, "bold"))
         self.back_button.place(relx=0.05, rely=0.05)
         self.back_button.bind("<Button-1>", lambda event:
-        self.master.open_frame("pronunciation_frame", 'mainmenuframe'))
+        self.master.open_frame("pronunciation_practice", 'mainmenuframe'))
         self.back_button.bind("<Enter>", lambda event:
         self.back_button.configure(cursor="hand2", text_color="green"))
         self.back_button.bind("<Leave>", lambda event:
@@ -293,14 +295,46 @@ class PronunciationPracticeFrame(ctk.CTkFrame):
         self.phonetic_display = ctk.CTkTextbox(phonetic_frame, height=60, font=("Courier", 11))
         self.phonetic_display.pack(pady=5, padx=10, fill="x")
         
-        # Load first word
-        self.load_new_word()
+        # Load first word only if library is available
+        try:
+            from functions import game_properties
+            if hasattr(game_properties, 'is_library_built') and game_properties.is_library_built:
+                self.load_new_word()
+            else:
+                # Show placeholder text when library is not built
+                self.word_display.configure(text="Click 'New Word' to start")
+                self.translation_display.configure(text="(Build word library first)")
+        except Exception as e:
+            print(f"Error checking library status: {e}")
+            self.word_display.configure(text="Click 'New Word' to start")
+            self.translation_display.configure(text="(Build word library first)")
     
     def load_new_word(self):
         """Load a new word for pronunciation practice"""
         try:
             from word_library import random_word_gen, translate_two
             from functions import game_properties
+            
+            # Check if library is built
+            if not hasattr(game_properties, 'is_library_built') or not game_properties.is_library_built:
+                # Use fallback words for offline/testing mode
+                fallback_words = {
+                    'nouns': ['Mensch', 'Körper', 'Arm', 'Auge', 'Bein'],
+                    'verbs': ['denken', 'sprechen', 'gehen', 'kommen', 'sehen'],
+                    'adjectives': ['groß', 'klein', 'gut', 'schlecht', 'neu'],
+                    'adverbs': ['schnell', 'langsam', 'gut', 'schlecht']
+                }
+                # Determine word type from mode
+                if self.mode_var.get() == "Random":
+                    word_types = ["nouns", "verbs", "adjectives", "adverbs"]
+                    word_type = random.choice(word_types)
+                else:
+                    word_type = self.mode_var.get().lower()
+                
+                self.current_word = random.choice(fallback_words.get(word_type, ['Wort']))
+                self.word_display.configure(text=self.current_word.title())
+                self.translation_display.configure(text="Please build the word library for full functionality")
+                return
             
             # Determine word type from mode
             if self.mode_var.get() == "Random":
@@ -309,15 +343,41 @@ class PronunciationPracticeFrame(ctk.CTkFrame):
             else:
                 word_type = self.mode_var.get().lower()
             
-            # Get random word
-            if self.current_language == "de":
-                self.current_word = random_word_gen("deutsch", word_type)
-                translation = translate_two(self.current_word, "deutsch", "english", word_type)
-            else:
-                # For other languages, use German as base and translate
-                german_word = random_word_gen("deutsch", word_type)
-                self.current_word = translate_two(german_word, "deutsch", self.current_language, word_type)
-                translation = translate_two(german_word, "deutsch", "english", word_type)
+            # Get random word with better error handling
+            try:
+                if self.current_language == "de":
+                    self.current_word = random_word_gen("deutsch", word_type)
+                    if self.current_word == "word library not found" or not self.current_word:
+                        # Use fallback word
+                        fallback_words = {
+                            'nouns': ['Mensch', 'Körper', 'Arm'],
+                            'verbs': ['denken', 'sprechen', 'gehen'],
+                            'adjectives': ['groß', 'klein', 'gut'],
+                            'adverbs': ['schnell', 'langsam']
+                        }
+                        self.current_word = random.choice(fallback_words.get(word_type, ['Wort']))
+                    
+                    translation = translate_two(self.current_word, "deutsch", "english", word_type)
+                    if not translation or translation.startswith('['):
+                        translation = "Translation unavailable"
+                else:
+                    # For other languages, use German as base and translate
+                    german_word = random_word_gen("deutsch", word_type)
+                    if german_word == "word library not found" or not german_word:
+                        german_word = "Mensch"  # Safe fallback
+                    
+                    self.current_word = translate_two(german_word, "deutsch", self.current_language, word_type)
+                    if not self.current_word or self.current_word.startswith('['):
+                        self.current_word = german_word  # Use German word as fallback
+                    
+                    translation = translate_two(german_word, "deutsch", "english", word_type)
+                    if not translation or translation.startswith('['):
+                        translation = "Translation unavailable"
+            
+            except Exception as e:
+                print(f"Error getting word: {e}")
+                self.current_word = "Mensch"
+                translation = "human"
             
             if self.current_word and self.current_word != "word library not found":
                 self.word_display.configure(text=self.current_word.title())

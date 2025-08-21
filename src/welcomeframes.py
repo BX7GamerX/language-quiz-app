@@ -8,7 +8,7 @@ from assetlibmanager import welcome_screen_pic
 user_logo = welcome_screen_pic
 
 # external file handling for the passcode and the version
-app_version = 0.1
+app_version = 1.0
 
 passcode = "him"
 
@@ -23,7 +23,7 @@ class WelcomeFrame(ctk.CTkFrame):
 
     def setup_welcome_frame(self):
 
-        self.master.change_geometry("400x475")
+        self.master.change_geometry("400x475") # type: ignore
         # the Welcome frame
         self.welcome_frame = ctk.CTkFrame(self, width=320, height=380)  # Frame n it's attributes
         self.welcome_frame.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)  # frame position relative to the window
@@ -37,14 +37,14 @@ class WelcomeFrame(ctk.CTkFrame):
         self.welcome_label.bind("<Leave>", lambda event:
         self.welcome_label.configure(cursor="arrow", text_color="#92c3c9"))
         self.welcome_label.bind("<Button-1>", lambda event:
-        self.master.change_apperance_mode())
+        self.master.change_apperance_mode()) # type: ignore
 
         # Logo label impimentation
         self.logo_label = ctk.CTkLabel(self.welcome_frame, image=user_logo, text="",
                                        font=ctk.CTkFont(size=20, weight="bold"), corner_radius=25)
         self.logo_label.place(relx=0.2, rely=0.15)  # position
         # password
-        self.show_password_var = ctk.BooleanVar()  # bool to check wheither or not the show passcode was pressed
+        self.show_password_var = ctk.BooleanVar()  # bool to check whether or not the show passcode was pressed
         self.pass_code_entry = ctk.CTkEntry(master=self.welcome_frame, width=220,
                                             placeholder_text="Password", show="*")
         self.pass_code_entry.place(relx=0.17, rely=0.55)
@@ -96,11 +96,9 @@ class WelcomeFrame(ctk.CTkFrame):
     def check_passcode(self):
         if self.pass_code_entry.get() != "":
             if confirm_passcode(self.pass_code_entry.get(), passcode):
-                # Check if library needs to be built
-                if not game_properties.is_library_built:
-                    self.master.open_frame("welcomeframe", 'loading_frame')
-                else:
-                    self.master.open_frame("welcomeframe", 'mainmenuframe')
+                # Always show loading screen after successful login
+                # The loading frame will check if library needs building and handle it appropriately
+                self.master.open_frame("welcomeframe", 'update_app_frame')
             else:
                 self.error_label.configure(text="Invalid Password")
         else:

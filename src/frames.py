@@ -1,11 +1,17 @@
 #necessary frames import
-from mainmenuframes import MainMenuFrame
+from modern_main_menu import ModernMainMenuFrame as MainMenuFrame
 from translatorframe import TranslatorFrame
 from translationgameframe import TranslationGameFrame, GameOverFrame
 from a1deutschframe import A1DeutschFrame
-from proficiency_levels import A2DeutschFrame, B1DeutschFrame, B2DeutschFrame
-from updateapp import UpdateAppFrame
-from loadingframe import LoadingFrame
+from modern_main_menu import ModernMainMenuFrame
+from enhanced_proficiency_levels import (
+    A2DeutschFrame,
+    B1DeutschFrame,
+    B2DeutschFrame
+)
+from modern_spaced_repetition import ModernSpacedRepetitionFrame
+from modern_update_frame import ModernUpdateAppFrame as UpdateAppFrame
+from modern_loading_frame import ModernLoadingFrame as LoadingFrame
 from interactive_modes import InteractiveModeFrame, AdvancedTranslationFrame, PracticeScheduleFrame
 from audio_manager import PronunciationPracticeFrame
 from progress_dashboard import ProgressDashboardFrame
@@ -23,7 +29,8 @@ frame_window = {"mainmenuframe":MainMenuFrame,"translation_game_frame":Translati
                 "advanced_translation":AdvancedTranslationFrame,
                 "practice_schedule":PracticeScheduleFrame,
                 "pronunciation_practice":PronunciationPracticeFrame,
-                "progress_dashboard":ProgressDashboardFrame}
+                "progress_dashboard":ProgressDashboardFrame,
+                "spaced_repetition_frame":ModernSpacedRepetitionFrame}
 
 
 #function to transsion between frame, destroy previous n create new

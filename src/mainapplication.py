@@ -4,7 +4,7 @@ import customtkinter as ctk
 # necessary frames for start up
 from frames import get_destination_frame
 from welcomeframes import WelcomeFrame
-from mainmenuframes import MainMenuFrame
+from modern_main_menu import ModernMainMenuFrame
 # import app properties
 from app_variables import Myapp, mainmenu_colour
 from functions import game_properties
@@ -50,8 +50,9 @@ class MainApp(ctk.CTk):
         if origin_frame == 'welcomeframe':
             self.main_frame.destroy()
             # Start logged in frame
-            self.mainmenuframe = MainMenuFrame(self, fg_color=mainmenu_colour.frame_darker)
-            self.frames["mainmenuframe"] = self.mainmenuframe
+            self.mainmenuframe = get_destination_frame(destination_frame)(self)#ModernMainMenuFrame(self, fg_color=mainmenu_colour.frame_darker)
+            # self.frames["mainmenuframe"] = self.mainmenuframe
+            self.frames[destination_frame] = self.mainmenuframe
             self.mainmenuframe.pack(expand=True, fill="both")
         else:
             self.main_frame.destroy()
