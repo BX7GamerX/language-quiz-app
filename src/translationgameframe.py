@@ -3,13 +3,18 @@ from word_library import random_word_gen, translate_two
 import tkinter
 from functions import shuffle_cubic,game_properties
 from derived_functions import setup_choices
+from user_progress import progress_manager
 import random
+import time
 
 
 class TranslationGameFrame(ctk.CTkFrame):
     def __init__(self,master, **kwargs ):
         super().__init__(master, **kwargs)
         self.master = master
+        self.session_start_time = time.time()
+        self.session_questions = 0
+        self.session_correct = 0
         self.setup_translation_game_frame(game_properties.default_answer)
 
     def setup_translation_game_frame(self, answer_one):
@@ -157,6 +162,7 @@ class TranslationGameFrame(ctk.CTkFrame):
     def trial_check(self, answer_in):
 
         self.word_entry_name.configure(text=self.randy_word)
+        self.session_questions += 1
 
         translation = translate_two(self.randy_word, game_properties.user_language, game_properties.second_language,
                                     game_properties.word_type)
@@ -169,6 +175,7 @@ class TranslationGameFrame(ctk.CTkFrame):
             else:
                 self.trials_left_label.configure(text_color='white')
             if word_in == translation:
+                self.session_correct += 1
                 self.remarks_label.configure(text=f"{self.positive_comments[random.randint(0, 8)]}! ")
                 self.answer_if_wrong_label.configure(text="You don't need me ,CORRECT")
                 self.refresh_choices()
@@ -182,7 +189,27 @@ class TranslationGameFrame(ctk.CTkFrame):
 
                 game_properties.trials_left -= 1
         else:
+            # Record session when game ends
+            self.record_session()
             self.master.open_frame('translation_game_frame', 'game_over_frame')
+    
+    def record_session(self):
+        """Record the current session statistics"""
+        session_duration = (time.time() - self.session_start_time) / 60  # Convert to minutes
+        
+        session_data = {
+            "score": game_properties.score,
+            "questions_attempted": self.session_questions,
+            "correct_answers": self.session_correct,
+            "duration_minutes": round(session_duration, 2),
+            "word_type": game_properties.word_type,
+            "language_pair": f"{game_properties.user_language}-{game_properties.second_language}"
+        }
+        
+        try:
+            progress_manager.record_practice_session(session_data)
+        except Exception as e:
+            print(f"Error recording session: {e}")
 
 
 class GameOverFrame(ctk.CTkFrame):

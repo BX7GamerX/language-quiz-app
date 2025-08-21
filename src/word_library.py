@@ -265,3 +265,15 @@ def random_word_gen(language, word_type):
             temp_word_node = language_hashmap[language][word_type][random_char].head_node
 
     return temp_word_node.data
+
+
+def build_library():
+    """Simple wrapper for library building for testing purposes"""
+    try:
+        # Initialize the basic data structures
+        build_hash()
+        print("Library built successfully (test mode)")
+        return True
+    except Exception as e:
+        print(f"Error building library: {e}")
+        return False

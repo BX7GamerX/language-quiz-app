@@ -96,7 +96,11 @@ class WelcomeFrame(ctk.CTkFrame):
     def check_passcode(self):
         if self.pass_code_entry.get() != "":
             if confirm_passcode(self.pass_code_entry.get(), passcode):
-                self.master.open_frame("welcomeframe", 'mainmenuframe')
+                # Check if library needs to be built
+                if not game_properties.is_library_built:
+                    self.master.open_frame("welcomeframe", 'loading_frame')
+                else:
+                    self.master.open_frame("welcomeframe", 'mainmenuframe')
             else:
                 self.error_label.configure(text="Invalid Password")
         else:

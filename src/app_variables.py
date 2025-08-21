@@ -25,6 +25,9 @@ wordlib_location = [
     (CSVPaths.VERBS.value, "verbs"),
 ]
 
+# Path to vocabulary files directory
+vocab_files_path = os.path.join(os.path.dirname(__file__), "../wordlib")
+
 class properties_set:
     def __init__(self, Apperance_mode, Default_theme):
         self.apperance_mode = Apperance_mode

@@ -30,7 +30,7 @@ class UpdateAppFrame(ctk.CTkFrame):
        # self.update_status_label.pack(pady=10)
         self.update_frame.configure( fg_color='#535454')
         self.logo_label.destroy()
-        self.handle_loading_gif(self.update_frame, 'images/buildlib_gif_dark.gif')
+        self.handle_loading_gif(self.update_frame, '../images/buildlib_gif_dark.gif')
         start_reading(self.update_frame, word_lists, self.progress_bar, self.progress_var, self.start_update_label)
         self.back_main_menu = ctk.CTkLabel(self.update_frame, text='<--',
                                            font=("Old English Text", 20, "bold"))

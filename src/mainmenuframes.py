@@ -40,7 +40,8 @@ class MainMenuFrame(ctk.CTkFrame):
         self.A2_label = ctk.CTkLabel(self.Learn_Deutch_frame, text="A2 - Deutsch",
                                      font=('Century Gothic', 15))
         self.A2_label.place(relx=0.35, rely=0.55)
-        self.A2_label.bind("<Button-1>", lambda event: self.master.open_forgot_password_frame())
+        self.A2_label.bind("<Button-1>", lambda event: self.master.open_frame("mainmenuframe",
+                                                                              "a2_deutsch_frame"))
         self.A2_label.bind("<Enter>", lambda event: self.A2_label.configure(cursor="hand2", text_color="green",
                                                                             fg_color='transparent'))  # mainmenu_colour.frame_light))
         self.A2_label.bind("<Leave>", lambda event: self.A2_label.configure(cursor="arrow", text_color="white",
@@ -49,7 +50,8 @@ class MainMenuFrame(ctk.CTkFrame):
         self.B1_label = ctk.CTkLabel(self.Learn_Deutch_frame, text="B1 - Deutsch",
                                      font=('Century Gothic', 15))
         self.B1_label.place(relx=0.35, rely=0.65)
-        self.B1_label.bind("<Button-1>", lambda event: self.master.open_forgot_password_frame())
+        self.B1_label.bind("<Button-1>", lambda event: self.master.open_frame("mainmenuframe",
+                                                                              "b1_deutsch_frame"))
         self.B1_label.bind("<Enter>", lambda event: self.B1_label.configure(cursor="hand2", text_color="green",
                                                                             fg_color='transparent'))  # mainmenu_colour.frame_light))
         self.B1_label.bind("<Leave>", lambda event: self.B1_label.configure(cursor="arrow", text_color="white",
@@ -58,7 +60,8 @@ class MainMenuFrame(ctk.CTkFrame):
         self.B2_label = ctk.CTkLabel(self.Learn_Deutch_frame, text="B2 - Deutsch",
                                      font=('Century Gothic', 15))
         self.B2_label.place(relx=0.35, rely=0.75)
-        self.B2_label.bind("<Button-1>", lambda event: self.master.open_forgot_password_frame())
+        self.B2_label.bind("<Button-1>", lambda event: self.master.open_frame("mainmenuframe",
+                                                                              "b2_deutsch_frame"))
         self.B2_label.bind("<Enter>", lambda event: self.B2_label.configure(cursor="hand2", text_color="green",
                                                                             fg_color='transparent'))  # mainmenu_colour.frame_light))
         self.B2_label.bind("<Leave>", lambda event: self.B2_label.configure(cursor="arrow", text_color="white",
@@ -75,6 +78,57 @@ class MainMenuFrame(ctk.CTkFrame):
         self.Cant_decide_label.bind("<Leave>",
                                     lambda event: self.Cant_decide_label.configure(cursor="arrow", text_color="white",
                                                                                    fg_color='transparent'))  # mainmenu_colour.frame_dark))
+        
+        # Add progress dashboard button
+        self.progress_button = ctk.CTkButton(self, text="📊 Progress Dashboard",
+                                           font=('Century Gothic', 14, 'bold'),
+                                           width=180, height=40,
+                                           fg_color="#2E8B57",
+                                           hover_color="#228B22")
+        self.progress_button.place(relx=0.02, rely=0.02)
+        self.progress_button.configure(command=lambda: self.master.open_frame("mainmenuframe", "progress_dashboard"))
+        
+        # Add vocabulary editor button
+        self.vocab_editor_button = ctk.CTkButton(self, text="📝 Edit Vocabulary",
+                                               font=('Century Gothic', 14, 'bold'),
+                                               width=180, height=40,
+                                               fg_color="#4169E1",
+                                               hover_color="#1E90FF")
+        self.vocab_editor_button.place(relx=0.02, rely=0.12)
+        self.vocab_editor_button.configure(command=self.open_vocabulary_editor)
+        
+        # Add interactive modes button
+        self.interactive_button = ctk.CTkButton(self, text="🎮 Interactive Modes",
+                                              font=('Century Gothic', 14, 'bold'),
+                                              width=180, height=40,
+                                              fg_color="#FF6347",
+                                              hover_color="#FF4500")
+        self.interactive_button.place(relx=0.02, rely=0.22)
+        self.interactive_button.configure(command=lambda: self.master.open_frame("mainmenuframe", "interactive_mode"))
+        
+        # Add pronunciation practice button
+        self.pronunciation_button = ctk.CTkButton(self, text="🎤 Pronunciation",
+                                                font=('Century Gothic', 14, 'bold'),
+                                                width=180, height=40,
+                                                fg_color="#8A2BE2",
+                                                hover_color="#9932CC")
+        self.pronunciation_button.place(relx=0.02, rely=0.32)
+        self.pronunciation_button.configure(command=lambda: self.master.open_frame("mainmenuframe", "pronunciation_practice"))
+    
+    def open_vocabulary_editor(self):
+        """Open vocabulary editor as a separate window"""
+        import subprocess
+        import sys
+        import os
+        
+        # Get the path to the vocabulary editor
+        editor_path = os.path.join(os.path.dirname(__file__), "vocabulary_editor.py")
+        
+        try:
+            # Run the vocabulary editor as a separate process
+            subprocess.Popen([sys.executable, editor_path])
+        except Exception as e:
+            print(f"Error opening vocabulary editor: {e}")
 
 
 pass

@@ -143,7 +143,7 @@ def write_to_csv(file_path, new_row):
         writer.writerow(new_row)
     row1 = str(0)
     row2 = '0.4'
-    with open(r'wordlib/libstatus', 'r') as file:
+    with open(r'../wordlib/libstatus', 'r') as file:
         reader = csv.reader(file)
         data = list(reader)
 
@@ -157,7 +157,7 @@ def write_to_csv(file_path, new_row):
     else:
         data.append(row1)
         data.append(row2)
-    with open(r'wordlib/libstatus', 'w', newline='') as file:
+    with open(r'../wordlib/libstatus', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(data)
 
